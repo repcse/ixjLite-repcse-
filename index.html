@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ixj</title>
+  <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.2/dist/dexie.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-black min-h-screen flex flex-col items-center p-4 relative">
+
+  <!-- Auth -->
+  <div id="auth" class="space-y-3 w-full max-w-sm">
+    <input id="username" placeholder="Username" class="w-full p-2 rounded border" />
+    <button onclick="handleLoginOrSignup()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded">Continue</button>
+      <button onclick="loadData()" class="text-purple-700 hover:text-purple-600 text-sm px-4 py-1.5 rounded">load</button> </div>
+
+  <!-- Main -->
+<div id="main" class="hidden w-full max-w-md mt-6 space-y-6">
+  <!-- Top Section: User Info -->
+  <div class="space-y-1">
+    <p class="text-3xl font-semibold" id="name"></p>
+    <p class="text-sm text-gray-700"> • Cxzh: <span id="cxzh">0</span> • Level: <span id="level">1</span> • Exp: <span id="exp">0</span> • Age: <span id="age">0</span>d • Energy: <span id="energy">100</span> • </p> </div>
+
+  <!-- Buttons -->
+  <div class="grid grid-cols-4 gap-2 text-sm">
+    <button onclick="claim(event)" class="text-green-700 hover:text-green-600 text-sm px-4 py-1.5 rounded">claim</button>
+    <button onclick="saveData()" class="text-blue-700 hover:text-blue-600 text-sm px-4 py-1.5 rounded">save</button>
+    <button onclick="loadData()" class="text-purple-700 hover:text-purple-600 text-sm px-4 py-1.5 rounded">load</button>
+    <button onclick="signout()" class="ml-auto text-red-600 hover:text-red-500 text-sm px-4 py-1.5 rounded">signout</button>
+    <button onclick="fullHardReset()" class="text-red-700  hover:text-red-600">reset</button>
+    <button onclick="toggleBag()" class="text-yellow-800 hover:text-yellow-700">bag</button>
+    <button onclick="toggleShop()" class="text-indigo-800 hover:text-indigo-600">shop</button>
+    <button onclick="toggleJobs()">tinyjob</button>
+       </div>   </div>
+
+  <!-- Bag Popup -->
+  <div id="bagPopup" class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border p-4 rounded shadow bg-white z-50 w-full max-w-md max-h-[32rem] overflow-auto">
+  <div class="flex justify-between items-center mb-2">
+    <h2 class="font-semibold text-sm">Inventory</h2>
+    <button onclick="toggleBag()" class="absolute top-2 right-2 bg-white px-2 py-1 text-gray-600 hover:text-red-500 z-10">✖</button>  </div>
+  <div id="bagFilter" class="flex justify-center gap-2 text-xs mb-2">
+    <button onclick="setBagFilter('all')" class="hover:underline" id="filter-all">All</button>
+    <button onclick="setBagFilter('tool')" class="hover:underline" id="filter-tool">Tool</button>
+    <button onclick="setBagFilter('food')" class="hover:underline" id="filter-food">Food</button>
+    <button onclick="setBagFilter('tech')" class="hover:underline" id="filter-tech">Tech</button>
+    <button onclick="setBagFilter('rare')" class="hover:underline" id="filter-rare">Rare</button>
+ </div>
+  <div id="bag"></div>   </div> 
+
+     <!-- Shop Popup -->
+<div id="shopPopup" class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border p-4 rounded shadow bg-white z-50 w-full max-w-md max-h-[32rem] overflow-auto">
+  <div class="flex justify-between items-center mb-2">
+    <h2 class="font-semibold text-sm">🛒 Shop</h2>
+    <button onclick="toggleShop()" class="absolute top-2 right-2 bg-white px-2 py-1 text-gray-600 hover:text-red-500 z-10">✖</button> </div>
+  <div id="shopFilter" class="flex justify-center gap-2 text-xs mb-2">
+  <button onclick="setShopFilter('all')" id="sfilter-all" class="hover:underline">All</button>
+  <button onclick="setShopFilter('food')" id="sfilter-food" class="hover:underline">Food</button>
+  <button onclick="setShopFilter('tool')" id="sfilter-tool" class="hover:underline">Tool</button>
+  <button onclick="setShopFilter('tech')" id="sfilter-tech" class="hover:underline">Tech</button>
+  <button onclick="setShopFilter('rare')" id="sfilter-rare" class="hover:underline">Rare</button>  </div>
+  <div id="shop"></div> </div>
+
+     <!-- Tinyjob Popup -->
+<div id="jobPopup" class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border p-4 rounded shadow bg-white z-50 w-full max-w-md max-h-[32rem] overflow-auto">
+  <div class="flex justify-between items-center mb-2">
+    <h2 class="font-semibold text-sm">TinyJobs</h2>
+    <button onclick="toggleJobs()" class="absolute top-2 right-2 bg-white px-2 py-1 text-gray-600 hover:text-red-500 z-10">✖</button> </div>
+   <div id="jobFilters" class="flex justify-center gap-2 text-xs mb-2">
+  <div id="jobfilter-all" onclick="setJobFilter('all')" class="hover:underline">All</div>
+  <div id="jobfilter-underground" onclick="setJobFilter('underground')" class="hover:underline">Underground</div>
+  <div id="jobfilter-resistance" onclick="setJobFilter('resistance')" class="hover:underline">Resistance</div>
+  <div id="jobfilter-blackmarket" onclick="setJobFilter('blackmarket')" class="hover:underline">Blackmarket</div>  </div>
+  <div id="jobsTable"></div>     </div>
+
+  <!-- Float Notif -->
+  <div id="float" class="absolute hidden bg-black text-white px-3 py-1 rounded text-xs z-50 pointer-events-none"></div>
+  <!-- File Input -->
+  <input type="file" id="fileInput" class="hidden" accept=".ixj" onchange="handleFile(event)" />
+
+  <script>
+    // ─────────── db ──────────────
+    const $ = id => document.getElementById(id);
+    const db = new Dexie("ixj");
+    db.version(1).stores({ users: "++id,username,data" });
+    let user = null;
+    const lastUser = localStorage.getItem("lastUser");
+    if (lastUser) {    db.users.where("username").equals(lastUser).first().then(u => {
+        if (u) {
+          user = u;
+          updateUI();
+          toggleSections(true);
+        }
+      });
+    }
+    
+    // ────── signup togglesec. signout ─────────
+    function handleLoginOrSignup() {
+      const username = $("username").value.trim();
+      if (!username) return alert("Enter username");
+db.users.where("username").equals(username).first().then(u => {
+        if (u) {
+          user = u;
+          localStorage.setItem("lastUser", username); 
+          updateUI();
+          toggleSections(true);
+        } else {
+          const data = { cxzh: 0.00, level: 1, exp: 0, energy: 100, bag: [], favor: {}, createdAt: Date.now(), lastClaim: 0 };
+          db.users.add({ username, data }).then(() => {
+            db.users.where("username").equals(username).first().then(newUser => {
+              user = newUser;
+              localStorage.setItem("lastUser", username);
+              updateUI();
+              toggleSections(true);
+            });
+          });
+        }
+      });
+    }
+    function toggleSections(show) {
+      $("auth").classList.toggle("hidden", show);
+      $("main").classList.toggle("hidden", !show);
+    }
+    function signout() {
+      localStorage.removeItem("lastUser");
+      user = null;
+      toggleSections(false);
+    }
+    
+    // ─────────── UI ──────────────
+    function updateUI() {
+      const d = user.data;
+      $("name").innerText = user.username;
+      $("level").innerText = d.level;
+      $("exp").innerText = d.exp;
+      $("cxzh").innerText = d.cxzh.toFixed(2);
+      $("age").innerText = Math.floor((Date.now() - d.createdAt) / 86400000);
+      $("energy").innerText = user.data.energy || 0;
+      updateBag();
+    }
+   // ─────────── saveuser ──────────────
+    function saveUser() {
+      db.users.update(user.id, { data: user.data }).then(updateUI);
+    }   
+        
+    // ─────────── bag ──────────────
+let bagFilter = "all";
+function setBagFilter(type) {
+  bagFilter = type;
+  updateBag();
+  highlightFilter(type);
+}
+function highlightFilter(active) {
+  ["all", "tool", "food", "tech", "rare"].forEach(type => {
+    const el = $("filter-" + type);
+    if (el) el.classList.toggle("font-bold", type === active);
+  });
+}
+function updateBag() {
+  const counts = {};
+  const filtered = user.data.bag.filter(item => {
+    const def = itemlist.find(i => i.name === item.name);
+    if (!def) return false;
+    return bagFilter === "all" || def.type === bagFilter;
+  });
+  filtered.forEach(item => {
+    counts[item.name] = (counts[item.name] || 0) + 1;
+  });
+  const entries = Object.entries(counts);
+  $("bag").innerHTML = entries.length
+    ? `
+      <table class="w-full text-xs">
+        <thead>
+          <tr class="border-b">
+            <th class="text-left">Item</th>
+            <th>Qty</th>
+            <th>Durability</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${entries.map(([name, count]) => {
+            const item = itemlist.find(i => i.name === name);
+            const isPager = name === "pager";
+            const canUse = !!item.effect;
+            const durability = item.durability !== undefined
+              ? (user.data.bag.find(i => i.name === name && i.durability !== undefined)?.durability ?? "??") + "%"
+              : "-";
+            return `
+              <tr class="border-b">
+                <td onmouseover="showBagTooltip('${name}', ${count}, event)">${name}</td>
+                <td>${count}</td>
+                <td class="text-center">${durability}</td>
+                <td class="flex gap-1">
+                  ${
+                    canUse
+                      ? `<button onclick="useItem('${name}', event, 'effect')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-1 rounded">Use</button>`
+                      : `<button class="bg-gray-300 text-gray-500 px-1 rounded" disabled>Use</button>`
+                  }
+                  ${
+                    isPager
+                      ? `<button onclick="togglePager()" class="bg-yellow-500 hover:bg-yellow-400 text-white px-1 rounded">${user.data.pagerActive ? "On" : "Off"}</button>`
+                      : ""
+                  }
+                </td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    `
+    : `<div class="text-gray-500 text-xs col-span-3 text-center">No items in this category</div>`;
+}
+function showBagTooltip(name, count, e) {
+  const item = itemlist.find(i => i.name === name);
+  if (!item) return;
+  const el = $("float");
+  const bagItems = user.data.bag.filter(i => i.name === name);
+  let durabilityInfo = "";
+  if (item.durability !== undefined && bagItems.length > 0) {
+    const total = bagItems.reduce((sum, i) => sum + (i.durability || 0), 0);
+    const avg = Math.floor(total / bagItems.length);
+    durabilityInfo = `Durability: ${avg}%<br>`;
+  }
+  const hint = item.effect
+    ? "<em>Click 'Use' to activate</em><br>"
+    : "<span class='text-gray-400 italic'>Not usable</span><br>";
+  const typeInfo = item.type ? `Type: ${item.type}<br>` : "";
+  const effectInfo = item.effect ? `Effect: ${item.effect}<br>` : "";
+  const rechargeInfo = item.rechargeable ? `<span class="text-green-600">Rechargeable</span><br>` : "";
+  el.innerHTML = `
+    <strong>${name}</strong><br>
+    Qty: ${count}<br>
+    Sell: ${item.sell.toFixed(2)}<br>
+    Value: ${(item.sell * count).toFixed(2)}<br>
+    ${typeInfo}
+    ${durabilityInfo}
+    ${effectInfo}
+    ${rechargeInfo}
+    ${hint}
+  `;
+  el.style.left = e.pageX + "px";
+  el.style.top = e.pageY + "px";
+  el.classList.remove("hidden");
+  clearTimeout(el.hideTimeout);
+  el.hideTimeout = setTimeout(() => el.classList.add("hidden"), 3000);
+}
+    function toggleBag() {
+      $("bagPopup").classList.toggle("hidden");
+    }
+         
+    // ─────────── shop ──────────────
+let shopFilter = "all";
+function setShopFilter(type) {
+  shopFilter = type;
+  highlightShopFilter(type);
+  updateShop();
+}
+function highlightShopFilter(active) {
+  ["all", "food", "tool", "tech", "rare"].forEach(type => {
+    const el = $("sfilter-" + type);
+    if (el) el.classList.toggle("font-bold", type === active);
+  });
+}
+const itemlist = [    
+  // ──────── TOOL ────────
+  { name: "knife", basePrice: 50.00, baseSell: 40.00, type: "tool" }, 
+  { name: "battery", basePrice: 60.00, baseSell: 50.00, type: "tool", effect: "recharge" }, 
+  { name: "flyer", basePrice: 10.00, baseSell: 7.00, type: "tool" }, 
+  { name: "syringe", basePrice: 20.00, baseSell: 15.00, type: "tool" }, 
+  { name: "scalpel", basePrice: 80.00, baseSell: 65.00, type: "tool", durability: 100 },
+  { name: "lockpick", basePrice: 70.00, baseSell: 55.00, type: "tool" }, 
+  { name: "hacksaw", basePrice: 90.00, baseSell: 70.00, type: "tool", durability: 100 }, 
+  { name: "duct tape", basePrice: 25.00, baseSell: 18.00, type: "tool" },
+  { name: "fake ID", basePrice: 200.00, baseSell: 160.00, type: "tool" }, 
+
+  // ──────── TECH ────────
+  { name: "camera", basePrice: 800.00, baseSell: 640.00, type: "tech", durability: 100, rechargeable: true }, 
+  { name: "pager", basePrice: 500.00, baseSell: 400.00, type: "tech", durability: 100, rechargeable: true }, 
+  { name: "drone", basePrice: 1000.00, baseSell: 800.00, type: "tech", durability: 100, rechargeable: true }, 
+  { name: "voice recorder", basePrice: 300.00, baseSell: 240.00, type: "tech", durability: 100, rechargeable: true }, 
+
+  // ──────── FOOD ────────
+  { name: "pill", basePrice: 150.00, baseSell: 120.00, type: "food", effect: "exp+1" }, 
+  { name: "bread", basePrice: 10.00, baseSell: 8.00, type: "food", effect: "energy+5" }, 
+  { name: "energy bar", basePrice: 20.00, baseSell: 16.00, type: "food", effect: "energy+10" },
+  { name: "vitamin", basePrice: 40.00, baseSell: 32.00, type: "food", effect: "energy+20" },
+  { name: "injector", basePrice: 75.00, baseSell: 60.00, type: "food", effect: "energy+50" },
+  { name: "adrenaline shot", basePrice: 120.00, baseSell: 90.00, type: "food", effect: "energy+100" }, 
+
+  // ──────── RARE ────────
+  { name: "mutated organ", baseSell: 25000.00, type: "rare", buyable: false },
+  { name: "bloody eye", baseSell: 15000.00, type: "rare", buyable: false },
+  { name: "numb body", baseSell: 40000.00, type: "rare", buyable: false }
+];
+  let lastPriceUpdate = 0;
+function maybeUpdatePrices() {
+  const now = Date.now();
+  if (now - lastPriceUpdate >= 60000) {
+    applyPriceFluctuation();
+    lastPriceUpdate = now;
+  }
+}
+function toggleShop() {
+  maybeUpdatePrices(); // 1m
+  $("shopPopup").classList.toggle("hidden");
+  updateShop();
+}
+function applyPriceFluctuation() {
+  itemlist.forEach(item => {
+    const priceFactor = Math.max(0.8, 1 + (Math.random() * 0.2 - 0.1));
+    const sellFactor = Math.max(0.8, 1 + (Math.random() * 0.2 - 0.1));
+    item.price = +(item.basePrice * priceFactor).toFixed(2);
+    item.sell = +(item.baseSell * sellFactor).toFixed(2);
+  });
+}
+setInterval(() => {
+  applyPriceFluctuation();
+  lastPriceUpdate = Date.now();
+}, 60000);
+applyPriceFluctuation();
+lastPriceUpdate = Date.now();
+  function updateShop() {
+  const filteredItems = itemlist.filter(item => {
+    if (shopFilter === "all") return true;
+    return item.type === shopFilter;
+  });
+  let rows = filteredItems.map(item => {
+    const affordable = user.data.cxzh >= item.price;
+    const discountRate = (item.price / item.basePrice || 1);
+    const highlight = discountRate <= 0.75 ? "bg-purple-100" : "";
+    const isBuyable = item.buyable !== false;
+
+    return `
+      <tr class="text-sm text-center border-b ${highlight} ${affordable ? "" : "opacity-50"}"
+          onmouseover="showShopTooltip('${item.name}', event)">
+        <td class="py-1">${item.name}</td>
+        <td>
+          ${isBuyable
+            ? `<span class="text-red-700">${item.price?.toFixed(2)}</span>
+               <span class="line-through text-gray-400 text-[10px]">(${item.basePrice?.toFixed(2)})</span>`
+            : `<span class="text-gray-400 italic">N/A</span>`}
+        </td>
+        <td>
+          <span class="text-green-700">${item.sell?.toFixed(2)}</span>
+          <span class="line-through text-gray-400 text-[10px]">(${item.baseSell?.toFixed(2)})</span>
+        </td>
+        <td>
+          <input id="qty-${item.name}" type="number" min="1" class="w-12 px-1 py-0.5 border rounded text-xs text-center">
+        </td>
+        <td class="flex gap-1 justify-center">
+          ${isBuyable
+            ? `<button onclick="buyItem('${item.name}', ${item.price}, event)" class="bg-indigo-700 text-white px-2 py-0.5 rounded text-xs">Buy</button>`
+            : `<button disabled class="bg-gray-400 text-white px-2 py-0.5 rounded text-xs opacity-50">Buy</button>`}
+          <button onclick="sellItem('${item.name}', ${item.sell}, event)" class="bg-yellow-700 text-white px-2 py-0.5 rounded text-xs">Sell</button>
+        </td>
+      </tr>`;
+  }).join("");
+  $("shop").innerHTML = `
+    <table class="w-full text-xs mb-2">
+      <thead>
+        <tr class="border-b text-center">
+          <th>Item</th><th>Buy</th><th>Sell</th><th>Qty</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div id="shopLog" class="text-xs text-gray-500 space-y-1"></div>
+  `;
+  updateShopLog();
+}
+function buyItem(name, price, e) {
+  const d = user.data;
+  const qty = parseInt($(`qty-${name}`).value) || 1;
+  const total = +(price * qty).toFixed(2);
+  const item = itemlist.find(i => i.name === name);
+  if (!item) return float("Item not found", e.clientX, e.clientY);
+  if (d.cxzh < total) return float("Not enough cxzh", e.clientX, e.clientY);
+  d.cxzh -= total;
+  gainExp(2);
+  for (let i = 0; i < qty; i++) {
+    const bagItem = { name };
+    if (item.durability !== undefined) {
+      bagItem.durability = 100;
+    }
+    d.bag.push(bagItem);
+  }
+  logShop(`Bought ${qty} ${name} (−${total.toFixed(2)} cxzh)`);
+  updateUI();
+  float(`+${qty} ${name} (−${total.toFixed(2)} cxzh)`, e.clientX, e.clientY);
+  saveUser();
+}
+function sellItem(name, sellPrice, e) {
+  const d = user.data;
+  const qty = parseInt($(`qty-${name}`).value) || 1;
+  let sold = 0;
+  let total = 0;
+  for (let i = d.bag.length - 1; i >= 0 && sold < qty; i--) {
+    const item = d.bag[i];
+    if (item.name === name) {
+      const def = itemlist.find(it => it.name === name);
+      const hasDurability = def?.durability !== undefined;
+      if (hasDurability && item.durability <= 0) continue;
+      const percent = hasDurability ? (item.durability / def.durability) : 1;
+      const value = +(sellPrice * percent).toFixed(2);
+      total += value;
+      d.bag.splice(i, 1);
+      sold++;
+    }
+  }
+  if (sold > 0) {
+    d.cxzh += total;
+    float(`−${sold} ${name} (+${total.toFixed(2)} cxzh)`, e.clientX, e.clientY);
+    logShop(`Sold ${sold} ${name} (+${total.toFixed(2)} cxzh)`);
+    updateUI();
+    saveUser();
+    if (!d.bag.some(i => i.name === name)) cancelActivitiesUsing(name);
+  } else {
+    float("No usable item to sell", e.clientX, e.clientY);
+  }
+}
+let itemCooldown = false;
+function useItem(name, e, mode = "effect") {
+  if (itemCooldown) return;
+  itemCooldown = true;
+  setTimeout(() => itemCooldown = false, 300);
+  const bag = user.data.bag;
+  const index = bag.findIndex(i => i.name === name);
+  if (index === -1) return float("Item not in bag", e.pageX, e.pageY);
+  const item = itemlist.find(i => i.name === name);
+  const bagItem = bag[index];
+  if (!item) return float("Unknown item", e.pageX, e.pageY);
+  const result = applyItemEffect(item, bagItem, e, mode);
+  if (result?.usedUp || result?.broken) {
+    bag.splice(index, 1);
+    if (item.name === "pager") user.data.pagerActive = false;
+    float(`${name} removed`, e.pageX, e.pageY);
+  }
+  updateUI();
+  saveUser();
+}
+function applyItemEffect(item, bagItem, e, mode = "effect") {
+  const d = user.data;
+  if (item.effect === "recharge") {
+    const target = d.bag.find(i => i.durability !== undefined && i.durability < 100);
+    if (!target) {
+      float("No item to recharge", e.pageX, e.pageY);
+      return { usedUp: false };
+    }
+    target.durability = Math.min(100, target.durability + 25);
+    float(`+25% ${target.name}`, e.pageX, e.pageY);
+    return { usedUp: true };
+  }
+  if (mode === "durability") {
+    if (bagItem?.durability === undefined) {
+      float("No durability", e.pageX, e.pageY);
+      return;
+    }
+    if (bagItem.durability <= 0) {
+      float("Item is broken", e.pageX, e.pageY);
+      return { broken: true };
+    }
+    bagItem.durability--;
+    if (bagItem.durability <= 0) {
+      return { broken: true };
+    }
+    return;
+  }
+  if (mode === "effect") {
+    if (item.effect === "exp+1") {
+      gainExp(1);
+      return { usedUp: true };
+    }
+    if (item.effect === "cxzh+1") {
+      d.cxzh += 1;
+      float("+1 cxzh", e.pageX, e.pageY);
+      return { usedUp: true };
+    }
+    if (item.effect?.startsWith("energy+")) {
+      const value = parseInt(item.effect.split("+")[1]);
+      const currentEnergy = d.energy ?? 100;
+      if (currentEnergy >= 100) {
+        float("Energy already full", e.pageX, e.pageY);
+        return { usedUp: false };
+      }
+      d.energy = Math.min(currentEnergy + value, 100);
+      float(`+${value} energy`, e.pageX, e.pageY);
+      return { usedUp: true };
+    }
+    if (item.effect) return { usedUp: true };
+  }
+  return { usedUp: false };
+}
+function showShopTooltip(name, e) {
+  const item = itemlist.find(i => i.name === name);
+  if (!item) return;
+  const el = $("float");
+  let tooltip = `<strong>${item.name}</strong><br>Buy: ${item.price.toFixed(2)}<br>Sell: ${item.sell.toFixed(2)}<br>`;
+  if (item.effect) tooltip += `<em>Effect: ${item.effect}</em><br>`;
+  if (item.durability) tooltip += `Durability: 100%
+<br>`;
+  if (item.rechargeable) tooltip += `Rechargeable: Yes<br>`;
+  if (item.type) tooltip += `Type: ${item.type}<br>`;
+  el.innerHTML = tooltip;
+  el.style.left = e.pageX + "px";
+  el.style.top = e.pageY + "px";
+  el.classList.remove("hidden");
+  clearTimeout(el.hideTimeout);
+  el.hideTimeout = setTimeout(() => el.classList.add("hidden"), 3000);
+}
+let shopLog = [];
+function logShop(action) {
+  shopLog.unshift(action);
+  if (shopLog.length > 3) shopLog.pop();
+  updateShopLog();
+}
+function updateShopLog() {
+  const logHtml = shopLog.map(log => `<div>• ${log}</div>`).join("");
+  $("shopLog").innerHTML = logHtml;
+}
+        
+    // ───────── tinyjob ───────────
+let jobFilter = "all";
+function setJobFilter(faction) {
+  jobFilter = faction;
+  updateJobs();
+  highlightJobFilter(faction);
+}
+function highlightJobFilter(active) {
+  ["all", "underground", "resistance", "blackmarket"].forEach(faction => {
+    const el = $("jobfilter-" + faction);
+    if (el) el.classList.toggle("font-bold", faction === active);
+  });
+}
+function toggleJobs() {
+  $("jobPopup").classList.toggle("hidden");
+  updateJobs();
+}
+const joblist = [      
+  { name: "Stab Random", cxzh: 300, exp: 1, msg: "You stabbed someone.", level: 1, requires: "knife", cooldown: 20000, failChance: 0.1, energyCost: 6, faction: "underground" },      
+  { name: "Distribute Flyers", cxzh: 150, exp: 1, msg: "Flyers distributed.", level: 5, requires: "flyer", consumeItem: true, cooldown: 90000, energyCost: 4, faction: "resistance" },      
+  { name: "Dump Corpse", cxzh: 400, exp: 1, msg: "Corpse dumped.", level: 10, cooldown: 180000, failChance: 0.05, energyCost: 8, faction: "underground" },      
+  { name: "Snap Neck", cxzh: 250, exp: 1, msg: "Neck snapped.", level: 15, chance: 0.5, cooldown: 20000, failChance: 0.15, energyCost: 6, faction: "underground" },      
+  { name: "Take Photos", cxzh: 600, exp: 2, msg: "You took disturbing photos.", level: 20, requires: "camera", useDurability: true, cooldown: 90000, energyCost: 5, faction: "blackmarket" },      
+  { name: "Experiment Victim", cxzh: 1800, exp: 2, msg: "Experiment done.", level: 25, requires: "scalpel", useDurability: true, cooldown: 240000, chanceItem: { name: "mutated organ", rate: 0.01 }, failChance: 0.2, energyCost: 10, faction: "underground" },      
+  { name: "Harvest Eye", cxzh: 2700, exp: 2, msg: "You harvested an eye.", level: 30, requires: "scalpel", useDurability: true, cooldown: 300000, chanceItem: { name: "bloody eye", rate: 0.05 }, failChance: 0.25, energyCost: 12, faction: "underground" },      
+  { name: "Silent Injection", cxzh: 3500, exp: 3, msg: "Silent takedown executed.", level: 35, requires: "syringe", consumeItem: true, cooldown: 280000, chanceItem: { name: "numb body", rate: 0.03 }, failChance: 0.2, energyCost: 10, faction: "underground" },
+  { name: "Infiltrate Apartment", cxzh: 500, exp: 2, msg: "You broke into an apartment.", level: 40, requires: "lockpick", cooldown: 180000, failChance: 0.15, energyCost: 7, faction: "resistance" },
+  { name: "Chop Evidence", cxzh: 800, exp: 2, msg: "You destroyed the evidence.", level: 45, requires: "hacksaw", useDurability: true, cooldown: 220000, energyCost: 6, faction: "underground" },
+  { name: "Restrain Target", cxzh: 700, exp: 2, msg: "Target restrained.", level: 50, requires: "duct tape", consumeItem: true, cooldown: 210000, failChance: 0.2, energyCost: 8, faction: "underground" },
+  { name: "Deliver Drugs", cxzh: 900, exp: 2, msg: "Delivery completed successfully.", level: 55, requires: "pill", consumeItem: true, cooldown: 180000, failChance: 0.1, energyCost: 6, faction: "blackmarket" },
+  { name: "Spy on Hideout", cxzh: 1200, exp: 3, msg: "Drone footage captured.", level: 60, requires: "drone", useDurability: true, cooldown: 300000, energyCost: 6, faction: "resistance" },
+  { name: "Boost Escape", cxzh: 0, exp: 1, msg: "You escaped using adrenaline.", level: 65, requires: "adrenaline shot", consumeItem: true, cooldown: 180000, failChance: 0.05, energyCost: 5, faction: "underground" },
+  { name: "Record Blackmail", cxzh: 2000, exp: 4, msg: "You recorded something incriminating.", level: 75, requires: "voice recorder", useDurability: true, cooldown: 300000, failChance: 0.2, energyCost: 6, faction: "blackmarket" },
+  { name: "Infiltrate Lab", cxzh: 2500, exp: 5, msg: "You got into the lab unnoticed.", level: 90, requires: "fake ID", cooldown: 360000, failChance: 0.3, energyCost: 10, faction: "resistance" }
+];
+let jobCooldowns = {}; 
+function hasItem(name) {
+  return user.data.bag.find(i => i.name === name);
+}
+function consumeItem(name, type) {
+  const index = user.data.bag.findIndex(i => i.name === name);
+  if (index === -1) return false;
+  if (type === "durability") {
+    user.data.bag[index].durability -= 1;
+    if (user.data.bag[index].durability <= 0) user.data.bag.splice(index, 1);
+  } else {
+    user.data.bag.splice(index, 1);
+  }
+  return true;
+}
+function doJob(job, e) {
+  const d = user.data;
+  const now = Date.now();
+  const cd = jobCooldowns[job.name] || 0;
+  if (d.level < job.level) return float(`Need level ${job.level}+`, e.clientX, e.clientY);
+  if (now < cd) return float(`Wait ${(Math.ceil((cd - now) / 1000))}s`, e.clientX, e.clientY);
+  jobCooldowns[job.name] = now + (job.cooldown || 0);
+  const energyCost = job.energyCost || 5;
+  if (d.energy === undefined) d.energy = 100;
+  if (d.energy < energyCost) return float("Too tired", e.clientX, e.clientY);
+  d.energy -= energyCost;
+  if (job.requires) {
+    if (!hasItem(job.requires)) return float(`Need ${job.requires}`, e.clientX, e.clientY);
+    if (job.useDurability && !consumeItem(job.requires, "durability")) return;
+    if (job.consumeItem && !consumeItem(job.requires, "consume")) return;
+  }
+  const scale = 1 + (d.level / 100);
+  const gotCxzh = job.chance !== undefined
+    ? (Math.random() < job.chance ? Math.floor(job.cxzh * scale) : 0)
+    : Math.floor(job.cxzh * scale);
+  d.cxzh += gotCxzh;
+  gainExp(job.exp || 0);
+  if (job.faction) {
+    if (!d.favor) d.favor = {};
+    d.favor[job.faction] = (d.favor[job.faction] || 0) + 1;
+  }
+  if (job.chanceItem && Math.random() < job.chanceItem.rate) {
+    d.bag.push({ name: job.chanceItem.name });
+    float(`+${job.chanceItem.name}`, e.clientX + 80, e.clientY);
+  }
+  float(`${job.msg} ${gotCxzh ? `+${gotCxzh} cxzh ` : ""}+${job.exp} exp`, e.clientX, e.clientY);
+  updateUI();
+  saveUser();
+}
+function updateJobs() {
+  const d = user.data;
+  const now = Date.now();
+  $("jobFilters").innerHTML = `
+    <div class="flex justify-center gap-2 text-xs mb-2">
+      ${["all", "underground", "resistance", "blackmarket"].map(f => `
+        <div 
+          id="jobfilter-${f}" 
+          onclick="setJobFilter('${f}')"
+          class="hover:underline">
+          ${f.charAt(0).toUpperCase() + f.slice(1)}
+        </div>
+      `).join("")}
+    </div>
+  `;
+  const filteredJobs = jobFilter === "all"
+    ? joblist
+    : joblist.filter(job => job.faction === jobFilter);
+  $("jobsTable").innerHTML = `
+    <table class="w-full text-xs">
+      <thead>
+        <tr class="border-b text-center">
+          <th>Level</th>
+          <th>Job</th>
+          <th>Reward</th>
+          <th>Energy</th>
+          <th>Faction</th>
+          <th>Need</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filteredJobs.map((job, i) => {
+          const reqText = job.requires 
+            ? job.consumeItem ? `${job.requires} (used)` 
+            : job.useDurability ? `${job.requires} (−1%)` 
+            : job.requires
+            : "-";
+          const rewardText = job.chance !== undefined
+            ? `+${job.exp} exp / ${Math.floor(job.chance * 100)}% +${job.cxzh} cxzh`
+            : `+${job.cxzh} cxzh / +${job.exp} exp`;
+          const locked = d.level < job.level;
+          const cd = jobCooldowns[job.name] || 0;
+          const waitSec = Math.ceil((cd - now) / 1000);
+          const showCooldown = waitSec > 0 ? ` (${waitSec}s)` : "";
+          return `
+            <tr class="border-b text-center ${locked ? "opacity-40" : ""}">
+              <td>${job.level}</td>
+              <td class="py-1">${job.name}</td>
+              <td>${rewardText}</td>
+              <td>${job.energyCost || 5}</td>
+              <td>${job.faction || "-"}</td>
+              <td>${reqText}</td>
+              <td>
+                <button onclick="doJob(joblist[${i}], event)" 
+                        class="bg-red-700 hover:bg-red-600 text-white px-2 py-0.5 rounded text-xs"
+                        ${locked || waitSec > 0 ? "disabled" : ""}>
+                  Do${showCooldown}
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join("")}
+      </tbody>
+    </table>
+  `;
+  highlightJobFilter(jobFilter);
+}
+
+    // ─────────── pager ──────────────
+function togglePager() {
+  user.data.pagerActive = !user.data.pagerActive;
+  float("Pager " + (user.data.pagerActive ? "activated" : "deactivated"));
+  updateBag();
+  saveUser();
+}
+function processPager() {
+  if (!user.data.pagerActive) return;
+  const bag = user.data.bag;
+  const index = bag.findIndex(i => i.name === "pager");
+  if (index === -1) return;
+  const pager = bag[index];
+  if (pager.durability <= 0) return;
+  pager.durability--;
+  user.data.cxzh += 1;
+  float("+1 cxzh (pager)");
+  if (pager.durability <= 0) {
+    user.data.pagerActive = false;
+    bag.splice(index, 1);
+    float("Pager broke and removed.");
+  }
+  updateUI();
+  saveUser();
+}
+setInterval(processPager, 5000); // 5s
+    // ─────────── claim ──────────────
+    function claim(e) {
+  const now = Date.now();
+  const last = user.data.lastClaim || 0;
+  const cooldown = 24 * 60 * 60 * 1000; // 24h
+  const timeLeft = cooldown - (now - last);
+  if (timeLeft > 0) {
+    const hrs = Math.floor(timeLeft / 3600000);
+    const mins = Math.floor((timeLeft % 3600000) / 60000);
+    const waitMsg = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+    return float(`Wait ${waitMsg}`, e.clientX, e.clientY);
+  }
+  user.data.cxzh += 10.00;
+  user.data.lastClaim = now;
+  gainExp(10);
+  updateUI();
+  float("+10 cxzh +10 exp", e.clientX, e.clientY);
+  saveUser();
+}
+    // ─────────── exp ──────────────
+    function gainExp(amount) {
+  const d = user.data;
+  if (d.level >= 100) return; 
+  d.exp += amount;
+  while (d.exp >= d.level * 100 && d.level < 100) {
+    d.exp -= d.level * 100;
+    d.level++;
+  }
+  if (d.level >= 100) {
+    d.exp = 0;
+  }
+}
+    // ─────────── save load ──────────────
+    function saveData() {
+      const blob = new Blob([JSON.stringify(user)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${user.username}.ixj`;
+      a.click();
+    }
+    function loadData() {
+      $("fileInput").click();
+    }
+    function handleFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const data = JSON.parse(reader.result);
+        db.users.put(data).then(() => {
+          user = data;
+          updateUI();
+          toggleSections(true);
+        });
+      };
+      reader.readAsText(file);
+    }
+  function fullHardReset() {
+  if (!confirm("⚠️ Ini akan PADAM semua data termasuk database lama. Teruskan?")) return;
+  localStorage.removeItem("lastUser");
+  db.delete().then(() => {
+    location.reload();
+  }).catch((err) => {
+    alert("Gagal reset database: " + err);
+  });
+}
+    // ─────────── float noti ──────────────
+    function float(text, x, y) {
+      const el = $("float");
+      el.textContent = text;
+      el.style.left = x + "px";
+      el.style.top = y + "px";
+      el.classList.remove("hidden");
+      setTimeout(() => el.classList.add("hidden"), 3000);
+    }
+  </script>
+</body>
+</html>
