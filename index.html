@@ -710,11 +710,11 @@ setInterval(processPager, 5000); // 5s
     const waitMsg = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
     return float(`Wait ${waitMsg}`, e.clientX, e.clientY);
   }
-  user.data.cxzh += 10.00;
+  user.data.cxzh += 50.00;
   user.data.lastClaim = now;
-  gainExp(10);
+  gainExp(2);
   updateUI();
-  float("+10 cxzh +10 exp", e.clientX, e.clientY);
+  float("+50 cxzh +2 exp", e.clientX, e.clientY);
   saveUser();
 }
     // ─────────── exp ──────────────
