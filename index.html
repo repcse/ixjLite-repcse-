@@ -536,23 +536,38 @@ function toggleJobs() {
   $("jobPopup").classList.toggle("hidden");
   updateJobs();
 }
-const joblist = [      
-  { name: "Stab Random", cxzh: 70, exp: 1, msg: "You stabbed someone.", level: 1, requires: "knife", cooldown: 20000, failChance: 0.1, energyCost: 6, faction: "underground" },      
-  { name: "Distribute Flyers", cxzh: 150, exp: 1, msg: "Flyers distributed.", level: 5, requires: "flyer", consumeItem: true, cooldown: 90000, energyCost: 4, faction: "resistance" },      
-  { name: "Dump Corpse", cxzh: 400, exp: 1, msg: "Corpse dumped.", level: 10, cooldown: 180000, failChance: 0.05, energyCost: 8, faction: "underground" },      
-  { name: "Snap Neck", cxzh: 250, exp: 1, msg: "Neck snapped.", level: 15, chance: 0.5, cooldown: 20000, failChance: 0.15, energyCost: 6, faction: "underground" },      
-  { name: "Take Photos", cxzh: 600, exp: 2, msg: "You took disturbing photos.", level: 20, requires: "camera", useDurability: true, cooldown: 90000, energyCost: 5, faction: "blackmarket" },      
-  { name: "Experiment Victim", cxzh: 1800, exp: 2, msg: "Experiment done.", level: 25, requires: "scalpel", useDurability: true, cooldown: 240000, chanceItem: { name: "mutated organ", rate: 0.01 }, failChance: 0.2, energyCost: 10, faction: "underground" },      
-  { name: "Harvest Eye", cxzh: 2700, exp: 2, msg: "You harvested an eye.", level: 30, requires: "scalpel", useDurability: true, cooldown: 300000, chanceItem: { name: "bloody eye", rate: 0.05 }, failChance: 0.25, energyCost: 12, faction: "underground" },      
-  { name: "Silent Injection", cxzh: 3500, exp: 3, msg: "Silent takedown executed.", level: 35, requires: "syringe", consumeItem: true, cooldown: 280000, chanceItem: { name: "numb body", rate: 0.03 }, failChance: 0.2, energyCost: 10, faction: "underground" },
-  { name: "Infiltrate Apartment", cxzh: 500, exp: 2, msg: "You broke into an apartment.", level: 40, requires: "lockpick", cooldown: 180000, failChance: 0.15, energyCost: 7, faction: "resistance" },
-  { name: "Chop Evidence", cxzh: 800, exp: 2, msg: "You destroyed the evidence.", level: 45, requires: "hacksaw", useDurability: true, cooldown: 220000, energyCost: 6, faction: "underground" },
-  { name: "Restrain Target", cxzh: 700, exp: 2, msg: "Target restrained.", level: 50, requires: "duct tape", consumeItem: true, cooldown: 210000, failChance: 0.2, energyCost: 8, faction: "underground" },
-  { name: "Deliver Drugs", cxzh: 900, exp: 2, msg: "Delivery completed successfully.", level: 55, requires: "pill", consumeItem: true, cooldown: 180000, failChance: 0.1, energyCost: 6, faction: "blackmarket" },
-  { name: "Spy on Hideout", cxzh: 1200, exp: 3, msg: "Drone footage captured.", level: 60, requires: "drone", useDurability: true, cooldown: 300000, energyCost: 6, faction: "resistance" },
-  { name: "Boost Escape", cxzh: 0, exp: 1, msg: "You escaped using adrenaline.", level: 65, requires: "adrenaline shot", consumeItem: true, cooldown: 180000, failChance: 0.05, energyCost: 5, faction: "underground" },
-  { name: "Record Blackmail", cxzh: 2000, exp: 4, msg: "You recorded something incriminating.", level: 75, requires: "voice recorder", useDurability: true, cooldown: 300000, failChance: 0.2, energyCost: 6, faction: "blackmarket" },
-  { name: "Infiltrate Lab", cxzh: 2500, exp: 5, msg: "You got into the lab unnoticed.", level: 90, requires: "fake ID", cooldown: 360000, failChance: 0.3, energyCost: 10, faction: "resistance" }
+const joblist = [
+  { name: "Stab Random", level: 1, cxzh: 40, exp: 1, msg: "You stabbed someone.", requires: "knife", cooldown: 15000, failChance: 0.08, energyCost: 4, faction: "underground" },
+
+  { name: "Distribute Flyers", level: 3, cxzh: 80, exp: 1, msg: "Flyers distributed.", requires: "flyer", consumeItem: true, cooldown: 60000, energyCost: 3, faction: "resistance" },
+
+  { name: "Dump Corpse", level: 6, cxzh: 180, exp: 1, msg: "Corpse dumped.", cooldown: 120000, failChance: 0.06, energyCost: 6, faction: "underground" },
+
+  { name: "Snap Neck", level: 8, cxzh: 150, exp: 1, msg: "Neck snapped.", chance: 0.5, cooldown: 20000, failChance: 0.12, energyCost: 5, faction: "underground" },
+
+  { name: "Take Photos", level: 10, cxzh: 300, exp: 2, msg: "You took the photos.", requires: "camera", useDurability: true, cooldown: 70000, energyCost: 4, faction: "blackmarket" },
+
+  { name: "Experiment Victim", level: 12, cxzh: 700, exp: 2, msg: "Experiment done.", requires: "scalpel", useDurability: true, cooldown: 150000, chanceItem: { name: "mutated organ", rate: 0.01 }, failChance: 0.15, energyCost: 8, faction: "underground" },
+
+  { name: "Harvest Eye", level: 15, cxzh: 1000, exp: 2, msg: "You harvested an eye.", requires: "scalpel", useDurability: true, cooldown: 180000, chanceItem: { name: "bloody eye", rate: 0.05 }, failChance: 0.2, energyCost: 9, faction: "underground" },
+
+  { name: "Silent Injection", level: 18, cxzh: 1400, exp: 3, msg: "Silent takedown executed.", requires: "syringe", consumeItem: true, cooldown: 160000, chanceItem: { name: "numb body", rate: 0.03 }, failChance: 0.16, energyCost: 8, faction: "underground" },
+
+  { name: "Infiltrate Apartment", level: 20, cxzh: 350, exp: 2, msg: "You broke into an apartment.", requires: "lockpick", cooldown: 130000, failChance: 0.12, energyCost: 6, faction: "resistance" },
+
+  { name: "Chop Evidence", level: 23, cxzh: 550, exp: 2, msg: "You destroyed the evidence.", requires: "hacksaw", useDurability: true, cooldown: 150000, energyCost: 6, faction: "underground" },
+
+  { name: "Restrain Target", level: 25, cxzh: 600, exp: 2, msg: "Target restrained.", requires: "duct tape", consumeItem: true, cooldown: 160000, failChance: 0.15, energyCost: 7, faction: "underground" },
+
+  { name: "Deliver Drugs", level: 28, cxzh: 750, exp: 2, msg: "Delivery completed successfully.", requires: "pill", consumeItem: true, cooldown: 140000, failChance: 0.1, energyCost: 6, faction: "blackmarket" },
+
+  { name: "Spy on Hideout", level: 32, cxzh: 900, exp: 3, msg: "Drone footage captured.", requires: "drone", useDurability: true, cooldown: 200000, energyCost: 5, faction: "resistance" },
+
+  { name: "Boost Escape", level: 35, cxzh: 20, exp: 2, msg: "You escaped using adrenaline.", requires: "adrenaline shot", consumeItem: true, cooldown: 150000, failChance: 0.05, energyCost: 4, faction: "underground", chanceItem: { name: "adrenaline shot", rate: 0.12 } },
+
+  { name: "Record Blackmail", level: 40, cxzh: 1400, exp: 4, msg: "You recorded something incriminating.", requires: "voice recorder", useDurability: true, cooldown: 220000, failChance: 0.18, energyCost: 6, faction: "blackmarket" },
+
+  { name: "Infiltrate Lab", level: 50, cxzh: 1800, exp: 5, msg: "You infiltrated the lab.", requires: "fake ID", cooldown: 260000, failChance: 0.25, energyCost: 9, faction: "resistance" }
 ];
 let jobCooldowns = {}; 
 function hasItem(name) {
