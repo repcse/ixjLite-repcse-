@@ -537,7 +537,7 @@ function toggleJobs() {
   updateJobs();
 }
 const joblist = [      
-  { name: "Stab Random", cxzh: 300, exp: 1, msg: "You stabbed someone.", level: 1, requires: "knife", cooldown: 20000, failChance: 0.1, energyCost: 6, faction: "underground" },      
+  { name: "Stab Random", cxzh: 70, exp: 1, msg: "You stabbed someone.", level: 1, requires: "knife", cooldown: 20000, failChance: 0.1, energyCost: 6, faction: "underground" },      
   { name: "Distribute Flyers", cxzh: 150, exp: 1, msg: "Flyers distributed.", level: 5, requires: "flyer", consumeItem: true, cooldown: 90000, energyCost: 4, faction: "resistance" },      
   { name: "Dump Corpse", cxzh: 400, exp: 1, msg: "Corpse dumped.", level: 10, cooldown: 180000, failChance: 0.05, energyCost: 8, faction: "underground" },      
   { name: "Snap Neck", cxzh: 250, exp: 1, msg: "Neck snapped.", level: 15, chance: 0.5, cooldown: 20000, failChance: 0.15, energyCost: 6, faction: "underground" },      
@@ -720,13 +720,13 @@ setInterval(processPager, 5000); // 5s
     // ─────────── exp ──────────────
     function gainExp(amount) {
   const d = user.data;
-  if (d.level >= 100) return; 
+  if (d.level >= 50) return; 
   d.exp += amount;
-  while (d.exp >= d.level * 100 && d.level < 100) {
-    d.exp -= d.level * 100;
+  while (d.exp >= d.level * 50 && d.level < 50) {
+    d.exp -= d.level * 50;
     d.level++;
   }
-  if (d.level >= 100) {
+  if (d.level >= 50) {
     d.exp = 0;
   }
 }
